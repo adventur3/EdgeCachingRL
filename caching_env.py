@@ -10,10 +10,11 @@ T_CLOUD = 2
 class CachingEnv:
     def __init__(self):
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM))
-        self.rsu_connect = np.zeros((RSU_NUM, RSU_NUM))
-        self.rsu_region = np.zeros((RSU_NUM, REGION_NUM))
-        self.rsu_capcity = np.zeros(RSU_NUM)
         self.region_request = np.zeros((REGION_NUM, REQUEST_NUM))
+        self.rsu_connect = np.zeros((RSU_NUM, RSU_NUM))
+
+        self.rsu_capcity = np.zeros(RSU_NUM)
+        self.rsu_residual_capcity = np.zeros(RSU_NUM)
         self.request_popularity = np.zeros(REQUEST_NUM)
         self.request_size = np.zeros(REQUEST_NUM)
         self.index_of_core = 2
