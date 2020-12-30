@@ -19,6 +19,16 @@ class CachingEnv:
         self.request_size = np.zeros(REQUEST_NUM)
         self.index_of_core = 2
 
+    def reset(self):
+        self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM))
+        self.region_request = np.zeros((REGION_NUM, REQUEST_NUM))
+        self.rsu_connect = np.zeros((RSU_NUM, RSU_NUM))
+
+        self.rsu_capcity = np.zeros(RSU_NUM)
+        self.rsu_residual_capcity = np.zeros(RSU_NUM)
+        self.request_popularity = np.zeros(REQUEST_NUM)
+        self.index_of_core = 2
+
     def step(self, action):
         _s = action
         trans_efficiency_sum = 0
