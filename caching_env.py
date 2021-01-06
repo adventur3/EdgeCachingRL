@@ -43,9 +43,6 @@ class CachingEnv:
         ucche = trans_efficiency_sum/(capcity_efficiency_sum/capcity_sum)
         return _s,ucche
 
-
-
-
 if __name__== '__main__':
     cacheEnv = CachingEnv()
     print(cacheEnv.cache_state)
