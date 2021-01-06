@@ -1,0 +1,8 @@
+*.DS_Store
+/target/
+/.idea/
+/.settings/
+*.classpath
+*.project
+*.iml
+/experimentData/
