@@ -30,7 +30,23 @@ class CachingEnv:
         self.index_of_core = 2
 
     def step(self, action):
-        _s = action
+        calculatePopularity()
+        if action == 0: #global popular content in core rsu
+            popularId = np.argmax(self.request_popularity)
+            if cache_state[self.index_of_core][popularId] == 0 && self.rsu_residual_capcity >= self.request_size[popularId]:
+                cache_state[self.index_of_core][popularId] = 1
+                self.rsu_residual_capcity -= self.request_size[popularId]
+        elif action == 1: #current popular content in local rsu
+            currentContentPopularity = {}
+            for i in range(REQUEST_NUM):
+                currentContentPopularity[i] = 0
+            
+        elif action == 2: #current popular content in core rsu
+
+        else: #random cache
+
+
+
         trans_efficiency_sum = 0
         capcity_efficiency_sum = 0
         capcity_sum = 0
