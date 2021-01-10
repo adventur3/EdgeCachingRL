@@ -21,6 +21,11 @@ class CachingEnv:
         self.request_size = np.zeros(REQUEST_NUM)
         self.index_of_core = 2
 
+        self.time1 = 1
+        self.time2 = 2
+        self.time3 = 3
+        self.time4 = 4
+
     def reset(self):
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM))
         self.region_request = np.zeros((REGION_NUM, REQUEST_NUM))
@@ -32,7 +37,7 @@ class CachingEnv:
         self.index_of_core = 2
 
     def step(self, action):
-        calculatePopularity()
+        self.calculatePopularity()
         if action == 0: #global popular content in core rsu
             popularId = np.argmax(self.request_popularity)
             if self.cache_state[self.index_of_core][popularId] == 0 and self.rsu_residual_capcity >= self.request_size[popularId]:
@@ -76,18 +81,28 @@ class CachingEnv:
                 self.cache_state[tempRSUId][tempRequestId] = 1
                 self.rsu_residual_capcity[tempRSUId] -= self.request_size[tempRequestId]
 
-
-        trans_efficiency_sum = 0
-        capcity_efficiency_sum = 0
-        capcity_sum = 0
-        for i in range(RSU_NUM):
-            capcity_sum += self.rsu_capcity[i]
+        observation_ = np.concatenate([self.rsu_residual_capcity, self.request_popularity])
+        store_cost = (np.sum(self.rsu_capcity)-np.sum(self.rsu_residual_capcity))/np.sum(self.rsu_capcity)
+        tranTime_sum = 0
+        for i in range(REGION_NUM):
             for j in range(REQUEST_NUM):
-                t = T_RSU/(_s[i][j]*T_RSU+(1-_s[i][j])*T_CLOUD)
-                trans_efficiency_sum += t
-                capcity_efficiency_sum += _s[i][j]*self.request_size[j]
-        ucche = trans_efficiency_sum/(capcity_efficiency_sum/capcity_sum)
-        return _s,ucche
+                tempRSUId = self.region_rsu[i]
+                if self.cache_state[tempRSUId][j] == 1:
+                    tranTime_sum += self.time2
+                else:
+                    tranTime_sum += self.time4
+        trans_cost = tranTime_sum/self.time4*RSU_NUM
+        cost = store_cost+trans_cost
+        reward = -cost
+
+        return observation_, reward
+
+    def calculatePopularity(self):
+        for i in range(REGION_NUM):
+            for j in range(REQUEST_NUM):
+                if self.region_request[i][j] == 1:
+                    self.request_popularity[j] += 1
+
 
 if __name__== '__main__':
     cacheEnv = CachingEnv()
