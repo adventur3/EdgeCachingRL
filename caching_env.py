@@ -10,15 +10,18 @@ T_CLOUD = 2
 
 class CachingEnv:
     def __init__(self):
-        self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM))
-        self.region_request = np.zeros((REGION_NUM, REQUEST_NUM))
-        self.rsu_connect = np.zeros((RSU_NUM, RSU_NUM))
-        self.region_rsu = np.zeros(REGION_NUM)
+        self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM), dtype=int)
+        self.region_request = np.zeros((REGION_NUM, REQUEST_NUM), dtype=int)
+        self.rsu_connect = np.zeros((RSU_NUM, RSU_NUM), dtype=int)
+        self.region_rsu = np.zeros(REGION_NUM, dtype=int)
 
         self.rsu_capcity = np.zeros(RSU_NUM)
         self.rsu_residual_capcity = np.zeros(RSU_NUM)
-        self.request_popularity = np.zeros(REQUEST_NUM)
+        self.request_popularity = np.zeros(REQUEST_NUM, dtype=int)
         self.request_size = np.zeros(REQUEST_NUM)
+
+        self.n_actions = 4
+        self.n_features = RSU_NUM+REQUEST_NUM
         self.index_of_core = 2
 
         self.time1 = 1
@@ -35,12 +38,13 @@ class CachingEnv:
         self.rsu_residual_capcity = np.zeros(RSU_NUM)
         self.request_popularity = np.zeros(REQUEST_NUM)
         self.index_of_core = 2
+        return np.concatenate([self.rsu_residual_capcity, self.request_popularity])
 
     def step(self, action):
         self.calculatePopularity()
         if action == 0: #global popular content in core rsu
             popularId = np.argmax(self.request_popularity)
-            if self.cache_state[self.index_of_core][popularId] == 0 and self.rsu_residual_capcity >= self.request_size[popularId]:
+            if self.cache_state[self.index_of_core][popularId] == 0 and self.rsu_residual_capcity[self.index_of_core] >= self.request_size[popularId]:
                 self.cache_state[self.index_of_core][popularId] = 1
                 self.rsu_residual_capcity -= self.request_size[popularId]
 
@@ -74,7 +78,7 @@ class CachingEnv:
                 self.cache_state[self.index_of_core][popularId] = 1
                 self.rsu_residual_capcity[self.index_of_core] -= self.request_size[popularId]
 
-        else:  #cache
+        else:  #random cache
             tempRSUId = random.randint(0,RSU_NUM-1)
             tempRequestId = random.randint(0,REQUEST_NUM-1)
             if self.cache_state[tempRSUId][tempRequestId] == 0 and self.rsu_residual_capcity[tempRSUId] >= self.request_size[tempRequestId]:
@@ -102,10 +106,3 @@ class CachingEnv:
             for j in range(REQUEST_NUM):
                 if self.region_request[i][j] == 1:
                     self.request_popularity[j] += 1
-
-
-if __name__== '__main__':
-    cacheEnv = CachingEnv()
-    print(cacheEnv.cache_state)
-    print(cacheEnv.cache_state[1][3])
-    print(cacheEnv.request_popularity)
