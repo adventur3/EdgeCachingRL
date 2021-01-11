@@ -3,8 +3,8 @@ import random
 import time
 
 RSU_NUM = 4
-REQUEST_NUM = 4
-REGION_NUM = 40
+REQUEST_NUM = 10
+REGION_NUM = 8
 T_RSU = 1
 T_CLOUD = 2
 
