@@ -31,5 +31,6 @@ if __name__ == '__main__':
                       # output_graph=True
                       )
     run(env, RL)
+    RL.plot_cost()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

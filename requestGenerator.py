@@ -5,7 +5,7 @@ REQUEST_NUM = 10
 
 if __name__ == "__main__":
     f = open("experimentData/RegionRequest/8region_10request.txt", "w")
-    for round in range(300000):
+    for round in range(301000):
         matrix = -1 + 2 * np.random.random((REGION_NUM,REQUEST_NUM))
         for i in range(REGION_NUM):
             for j in range(REQUEST_NUM):
