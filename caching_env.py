@@ -54,6 +54,7 @@ class CachingEnv:
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM), dtype=int)
         self.rsu_residual_capcity = np.ones(RSU_NUM) * DEFAULT_RSU_CAPCITY
         self.request_popularity = np.zeros(REQUEST_NUM, dtype=int)
+        self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
 
         temparr = []
         for i in range(self.region_num):

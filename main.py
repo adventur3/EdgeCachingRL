@@ -4,9 +4,11 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from RL_brain import DeepQNetwork
 from caching_env import CachingEnv
+import numpy as np
 
 def run(env, RL):
     total_step = 0
+    reward_his = np.array([])
     for episode in range(300):
         observation = env.reset()
         for step in range(1000):
@@ -18,6 +20,15 @@ def run(env, RL):
                 RL.learn()
             observation = observation_
             total_step += 1
+    plot_reward(reward_his)
+
+def plot_reward(reward_his):
+    import matplotlib.pyplot as plt
+    plt.plot(np.arange(len(reward_his)), reward_his)
+    plt.ylabel('Reward')
+    plt.xlabel('Steps')
+    plt.show()
+
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
@@ -31,6 +42,6 @@ if __name__ == '__main__':
                       # output_graph=True
                       )
     run(env, RL)
-    RL.plot_cost()
+    #RL.plot_cost()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
