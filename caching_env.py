@@ -79,6 +79,7 @@ class CachingEnv:
         #     temparr.append(intlist)
         # self.region_request = np.array(temparr)
 
+        currentRequestCount, hitCacheCount = self.hitCacheCount()
 
         self.calculatePopularity()
         if action == 0: #global popular content in core rsu
@@ -139,7 +140,19 @@ class CachingEnv:
         reward = -cost
         self.region_request = self.requestGenerator.generateRegionRequestMatrix()
 
-        return observation_, reward
+        return observation_, reward, currentRequestCount, hitCacheCount
+
+    def hitCacheCount(self):
+        requestCount = 0
+        cacheHitCount = 0
+        for i in range(len(self.region_request)):
+            for j in range(len(self.region_request[0])):
+                if self.region_request[i][j] == 1:
+                    requestCount += 1
+                    correspondRsuId = self.region_rsu[i]
+                    if self.cache_state[correspondRsuId][j] ==1:
+                        cacheHitCount += 1
+        return requestCount, cacheHitCount
 
     def calculatePopularity(self):
         for i in range(REGION_NUM):

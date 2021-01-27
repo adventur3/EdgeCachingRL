@@ -9,19 +9,25 @@ import numpy as np
 def run(env, RL):
     total_step = 0
     reward_his = []
-    for episode in range(200):
+    cache_hit_ratio_his = []
+    for episode in range(100):
         observation = env.reset()
-        for step in range(100):
+        episodeRequestCount = 0
+        episodeCacheHitCount = 0
+        for step in range(1000):
             action = RL.choose_action(observation)
-            observation_, reward = env.step(action)
+            observation_, reward, currentRequestCount, hitCacheCount = env.step(action)
+            episodeRequestCount += currentRequestCount
+            episodeCacheHitCount += hitCacheCount
             RL.store_transition(observation, action, reward, observation_)
-
             if (total_step > 200) and (total_step % 5 == 0):
                 RL.learn()
             observation = observation_
             total_step += 1
         reward_his.append(env.rsu_residual_capcity[3])
-    plot_reward(reward_his)
+        cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
+    #plot_reward(reward_his)
+    plot_reward(cache_hit_ratio_his)
     # for i in range(len(reward_his)):
     #     print(reward_his[i])
 
