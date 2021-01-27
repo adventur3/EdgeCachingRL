@@ -1,8 +1,9 @@
 import numpy as np
 import random
+from zipfRequestsGenerator import RequestGenerator
 import time
 
-DEFAULT_RSU_CAPCITY = 1000
+DEFAULT_RSU_CAPCITY = 10000
 
 RSU_NUM = 4
 REQUEST_NUM = 10
@@ -35,9 +36,10 @@ class CachingEnv:
             intlist = list(map(int, strlist))
             self.request_size = np.array(intlist)
 
-        self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
+        self.requestGenerator = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
+        #self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM), dtype=int)
-        self.region_request = np.zeros((REGION_NUM, REQUEST_NUM), dtype=int)
+        self.region_request = self.requestGenerator.generateRegionRequestMatrix()
         self.rsu_capcity = np.ones(RSU_NUM) * DEFAULT_RSU_CAPCITY
         self.rsu_residual_capcity = np.ones(RSU_NUM) * DEFAULT_RSU_CAPCITY
         self.request_popularity = np.zeros(REQUEST_NUM, dtype=int)
@@ -54,34 +56,36 @@ class CachingEnv:
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM), dtype=int)
         self.rsu_residual_capcity = np.ones(RSU_NUM) * DEFAULT_RSU_CAPCITY
         self.request_popularity = np.zeros(REQUEST_NUM, dtype=int)
-        self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
+        #self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
 
-        temparr = []
-        for i in range(self.region_num):
-            line = self.requestFile.readline()
-            strlist = str.split(line)
-            intlist = list(map(int, strlist))
-            temparr.append(intlist)
-        self.region_request = np.array(temparr)
+        # temparr = []
+        # for i in range(self.region_num):
+        #     line = self.requestFile.readline()
+        #     strlist = str.split(line)
+        #     intlist = list(map(int, strlist))
+        #     temparr.append(intlist)
+        #self.region_request = np.array(temparr)
+        self.region_request = self.requestGenerator.generateRegionRequestMatrix()
 
 
         return np.concatenate([self.rsu_residual_capcity, self.request_popularity])
 
     def step(self, action):
-        temparr = []
-        for i in range(self.region_num):
-            line = self.requestFile.readline()
-            strlist = str.split(line)
-            intlist = list(map(int, strlist))
-            temparr.append(intlist)
-        self.region_request = np.array(temparr)
+        # temparr = []
+        # for i in range(self.region_num):
+        #     line = self.requestFile.readline()
+        #     strlist = str.split(line)
+        #     intlist = list(map(int, strlist))
+        #     temparr.append(intlist)
+        # self.region_request = np.array(temparr)
+
 
         self.calculatePopularity()
         if action == 0: #global popular content in core rsu
             popularId = np.argmax(self.request_popularity)
             if self.cache_state[self.index_of_core][popularId] == 0 and self.rsu_residual_capcity[self.index_of_core] >= self.request_size[popularId]:
                 self.cache_state[self.index_of_core][popularId] = 1
-                self.rsu_residual_capcity -= self.request_size[popularId]
+                self.rsu_residual_capcity[self.index_of_core] -= self.request_size[popularId]
 
         elif action == 1: #current popular content in local rsu
             currentContentPopularity = {}
@@ -133,6 +137,7 @@ class CachingEnv:
         trans_cost = tranTime_sum/self.time4*RSU_NUM
         cost = store_cost+trans_cost
         reward = -cost
+        self.region_request = self.requestGenerator.generateRegionRequestMatrix()
 
         return observation_, reward
 

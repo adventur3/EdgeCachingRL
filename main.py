@@ -8,10 +8,10 @@ import numpy as np
 
 def run(env, RL):
     total_step = 0
-    reward_his = np.array([])
-    for episode in range(300):
+    reward_his = []
+    for episode in range(200):
         observation = env.reset()
-        for step in range(1000):
+        for step in range(100):
             action = RL.choose_action(observation)
             observation_, reward = env.step(action)
             RL.store_transition(observation, action, reward, observation_)
@@ -20,7 +20,10 @@ def run(env, RL):
                 RL.learn()
             observation = observation_
             total_step += 1
+        reward_his.append(env.rsu_residual_capcity[3])
     plot_reward(reward_his)
+    # for i in range(len(reward_his)):
+    #     print(reward_his[i])
 
 def plot_reward(reward_his):
     import matplotlib.pyplot as plt
@@ -42,6 +45,6 @@ if __name__ == '__main__':
                       # output_graph=True
                       )
     run(env, RL)
-    #RL.plot_cost()
+    RL.plot_cost()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
