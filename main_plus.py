@@ -14,7 +14,7 @@ def run(env, RL):
         observation = env.reset()
         episodeRequestCount = 0
         episodeCacheHitCount = 0
-        for step in range(1000):
+        for step in range(2000):
             action = RL.choose_action(observation)
             observation_, reward, currentRequestCount, hitCacheCount = env.step(action)
             episodeRequestCount += currentRequestCount

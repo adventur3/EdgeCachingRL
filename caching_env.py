@@ -3,7 +3,7 @@ import random
 from zipfRequestsGenerator import RequestGenerator
 import time
 
-DEFAULT_RSU_CAPCITY = 10000
+DEFAULT_RSU_CAPCITY = 2000
 
 RSU_NUM = 4
 REQUEST_NUM = 10

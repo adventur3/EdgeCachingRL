@@ -3,8 +3,8 @@ import random
 from zipfRequestsGenerator import RequestGenerator
 import time
 
-DEFAULT_RSU_CAPCITY = 10000
-DEFAULT_CAR_CAPCITY = 5000
+DEFAULT_RSU_CAPCITY = 2000
+DEFAULT_CAR_CAPCITY = 1000
 
 RSU_NUM = 4
 REQUEST_NUM = 10
@@ -38,6 +38,14 @@ class CachingEnv:
             strlist = str.split(line)
             intlist = list(map(int, strlist))
             self.request_size = np.array(intlist)
+
+        with open('experimentData/RegionNeighbor/8regions.txt', 'r') as f:
+            temparr = []
+            for line in f:
+                strlist = str.split(line)
+                intlist = list(map(int, strlist))
+                temparr.append(intlist)
+            self.region_neighbor = np.array(temparr)
 
         self.requestGenerator = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
         #self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
@@ -159,8 +167,8 @@ class CachingEnv:
                 self.cache_state[tempRSUId][tempRequestId] = 1
                 self.rsu_residual_capcity[tempRSUId] -= self.request_size[tempRequestId]
 
-        observation_ = np.concatenate([self.rsu_residual_capcity, self.request_popularity])
-        store_cost = (np.sum(self.rsu_capcity)-np.sum(self.rsu_residual_capcity))/np.sum(self.rsu_capcity)
+        observation_ = np.concatenate([self.rsu_residual_capcity, self.car_residual_capcity, self.request_popularity])
+        store_cost = (np.sum(self.rsu_capcity)+np.sum(self.car_capcity)-np.sum(self.rsu_residual_capcity)-np.sum(self.car_residual_capcity))/(np.sum(self.rsu_capcity)+np.sum(self.car_capcity))
         tranTime_sum = 0
         for i in range(REGION_NUM):
             for j in range(REQUEST_NUM):
@@ -173,8 +181,22 @@ class CachingEnv:
         cost = store_cost+trans_cost
         reward = -cost
         self.region_request = self.requestGenerator.generateRegionRequestMatrix()
-
+        self.carmove_step()
         return observation_, reward, currentRequestCount, hitCacheCount
+
+    def carmove_step(self):
+        for i in range(len(self.car_location)):
+            current_location = self.car_location[i]
+            tempint = random.randint(1, 100)
+            if tempint > 90:
+                candi_location = []
+                for j in range(len(self.region_neighbor[current_location])):
+                    if current_location != j and self.region_neighbor[current_location][j] == 1:
+                        candi_location.append(j)
+                candi_location_choose = random.randint(0, len(candi_location)-1)
+                self.car_location[i] = candi_location[candi_location_choose]
+
+
 
     def hitCacheCount(self):
         requestCount = 0
@@ -202,5 +224,5 @@ class CachingEnv:
 
 if __name__ == '__main__':
     c = CachingEnv()
-    a = c.reset()
-    print(a)
+    #a = c.reset()
+    #print(a)
