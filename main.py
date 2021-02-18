@@ -10,7 +10,7 @@ def run(env, RL):
     total_step = 0
     reward_his = []
     cache_hit_ratio_his = []
-    for episode in range(100):
+    for episode in range(300):
         observation = env.reset()
         episodeRequestCount = 0
         episodeCacheHitCount = 0

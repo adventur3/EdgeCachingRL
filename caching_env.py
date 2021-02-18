@@ -135,7 +135,7 @@ class CachingEnv:
                     tranTime_sum += self.time2
                 else:
                     tranTime_sum += self.time4
-        trans_cost = tranTime_sum/self.time4*RSU_NUM
+        trans_cost = tranTime_sum/(self.time4*RSU_NUM*REGION_NUM)
         cost = store_cost+trans_cost
         reward = -cost
         self.region_request = self.requestGenerator.generateRegionRequestMatrix()
