@@ -105,13 +105,8 @@ class CachingEnv:
         currentRequestCount, hitCacheCount = self.hitCacheCount()
 
         self.calculatePopularity()
-        if action == 0: #global popular content in core rsu
-            popularId = np.argmax(self.request_popularity)
-            if self.cache_state[self.index_of_core][popularId] == 0 and self.rsu_residual_capcity[self.index_of_core] >= self.request_size[popularId]:
-                self.cache_state[self.index_of_core][popularId] = 1
-                self.rsu_residual_capcity[self.index_of_core] -= self.request_size[popularId]
 
-        elif action == 1: #current popular content in local rsu
+        if action == 0:
             currentContentPopularity = {}
             for i in range(REQUEST_NUM):
                 currentContentPopularity[i] = 0
@@ -120,52 +115,17 @@ class CachingEnv:
                     if self.region_request[i][j] == 1:
                         currentContentPopularity[j] += 1
             popularId = max(currentContentPopularity,key=currentContentPopularity.get)
-            tempRequest = self.region_request[:,popularId]
-            for i in range(REGION_NUM):
-                if tempRequest[i] == 1:
-                    tempRSUId = self.region_rsu[i]
-                    if self.cache_state[tempRSUId][popularId] == 0 and self.rsu_residual_capcity[tempRSUId]>=self.request_size[popularId]:
-                        self.cache_state[tempRSUId][popularId] = 1
-                        self.rsu_residual_capcity[tempRSUId] -= self.request_size[popularId]
+            #popularId = np.argmax(self.request_popularity)
+            for tempRSUId in range(RSU_NUM):
+                if self.cache_state[tempRSUId][popularId] == 0 and self.rsu_residual_capcity[tempRSUId] >= self.request_size[popularId]:
+                    self.cache_state[tempRSUId][popularId] = 1
+                    self.rsu_residual_capcity[tempRSUId] -= self.request_size[popularId]
+            for tempCarId in range(CAR_NUM):
+                if self.car_cache_state[tempCarId][popularId] == 0 and self.car_residual_capcity[tempCarId] >= \
+                        self.request_size[popularId]:
+                    self.car_cache_state[tempCarId][popularId] = 1
+                    self.car_residual_capcity[tempCarId] -= self.request_size[popularId]
 
-        elif action == 2: #current popular content in core rsu
-            currentContentPopularity = {}
-            for i in range(REQUEST_NUM):
-                currentContentPopularity[i] = 0
-            for i in range(REGION_NUM):
-                for j in range(REQUEST_NUM):
-                    if self.region_request[i][j] == 1:
-                        currentContentPopularity[j] += 1
-            popularId = max(currentContentPopularity, key=currentContentPopularity.get)
-            if self.cache_state[self.index_of_core][popularId] == 0 and self.rsu_residual_capcity[self.index_of_core] >= self.request_size[popularId]:
-                self.cache_state[self.index_of_core][popularId] = 1
-                self.rsu_residual_capcity[self.index_of_core] -= self.request_size[popularId]
-
-        elif action == 3: #current popular content in car
-            currentContentPopularity = {}
-            for i in range(REQUEST_NUM):
-                currentContentPopularity[i] = 0
-            for i in range(REGION_NUM):
-                for j in range(REQUEST_NUM):
-                    if self.region_request[i][j] == 1:
-                        currentContentPopularity[j] += 1
-            popularId = max(currentContentPopularity, key=currentContentPopularity.get)
-            tempRequest = self.region_request[:,popularId]
-            for i in range(REGION_NUM):
-                if tempRequest[i] == 1:
-                    for j in range(len(self.car_location)):
-                        if self.car_location[j] == i:
-                            if self.car_cache_state[j][popularId] == 0 and self.car_residual_capcity[j] >= \
-                                    self.request_size[popularId]:
-                                self.car_cache_state[j][popularId] = 1
-                                self.car_residual_capcity[j] -= self.request_size[popularId]
-
-        else:  #random cache
-            tempRSUId = random.randint(0,RSU_NUM-1)
-            tempRequestId = random.randint(0,REQUEST_NUM-1)
-            if self.cache_state[tempRSUId][tempRequestId] == 0 and self.rsu_residual_capcity[tempRSUId] >= self.request_size[tempRequestId]:
-                self.cache_state[tempRSUId][tempRequestId] = 1
-                self.rsu_residual_capcity[tempRSUId] -= self.request_size[tempRequestId]
 
         observation_ = np.concatenate([self.rsu_residual_capcity, self.car_residual_capcity, self.request_popularity])
         store_cost = (np.sum(self.rsu_capcity)+np.sum(self.car_capcity)-np.sum(self.rsu_residual_capcity)-np.sum(self.car_residual_capcity))/(np.sum(self.rsu_capcity)+np.sum(self.car_capcity))

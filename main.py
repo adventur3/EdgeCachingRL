@@ -17,17 +17,24 @@ def run(env, RL):
         for step in range(2000):
             action = RL.choose_action(observation)
             observation_, reward, currentRequestCount, hitCacheCount = env.step(action)
-            episodeRequestCount += currentRequestCount
-            episodeCacheHitCount += hitCacheCount
+            if episode >= 290 and step >= 1900:
+                episodeRequestCount += currentRequestCount
+                episodeCacheHitCount += hitCacheCount
+            if episode >= 290 and step == 1999:
+                reward_his.append(reward)
             RL.store_transition(observation, action, reward, observation_)
             if (total_step > 200) and (total_step % 5 == 0):
                 RL.learn()
             observation = observation_
             total_step += 1
-        reward_his.append(env.rsu_residual_capcity[3])
-        cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
+        #reward_his.append(env.rsu_residual_capcity[3])
+        if episode >= 290:
+            cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
     #plot_reward(reward_his)
     plot_reward(cache_hit_ratio_his)
+    plot_reward(reward_his)
+    print(cache_hit_ratio_his)
+    print(reward_his)
     # for i in range(len(reward_his)):
     #     print(reward_his[i])
 
