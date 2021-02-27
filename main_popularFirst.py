@@ -26,8 +26,9 @@ def run(env, RL):
     plot_reward(cache_hit_ratio_his)
     plot_reward(reward_his)
     print(cache_hit_ratio_his)
+    print(sum(cache_hit_ratio_his)/len(cache_hit_ratio_his))
     print(reward_his)
-    print(env.cache_state)
+    #print(env.cache_state)
     # for i in range(len(reward_his)):
     #     print(reward_his[i])
 

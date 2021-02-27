@@ -8,35 +8,58 @@ import numpy as np
 
 def run(env, RL):
     total_step = 0
-    reward_his = []
+    #reward_his = []
+    cost_his=[]
     cache_hit_ratio_his = []
     for episode in range(300):
         observation = env.reset()
         episodeRequestCount = 0
         episodeCacheHitCount = 0
+        costSum = 0
         for step in range(2000):
             action = RL.choose_action(observation)
             observation_, reward, currentRequestCount, hitCacheCount = env.step(action)
-            if episode >= 290 and step >= 1900:
-                episodeRequestCount += currentRequestCount
-                episodeCacheHitCount += hitCacheCount
-            if episode >= 290 and step == 1999:
-                reward_his.append(reward)
+            # if episode >= 290 and step >= 1900:
+            #     episodeRequestCount += currentRequestCount
+            #     episodeCacheHitCount += hitCacheCount
+            # if episode >= 290 and step == 1999:
+            #     reward_his.append(reward)
             RL.store_transition(observation, action, reward, observation_)
             if (total_step > 200) and (total_step % 5 == 0):
                 RL.learn()
             observation = observation_
             total_step += 1
+            episodeCacheHitCount += hitCacheCount
+            episodeRequestCount += currentRequestCount
+            costSum += -reward
         #reward_his.append(env.rsu_residual_capcity[3])
-        if episode >= 290:
-            cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
+        # if episode >= 290:
+        #     cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
     #plot_reward(reward_his)
-    plot_reward(cache_hit_ratio_his)
-    plot_reward(reward_his)
+        cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
+        cost_his.append(costSum)
+    plot_cache_hit_ratio(cache_hit_ratio_his)
+    plot_cost(cost_his)
     print(cache_hit_ratio_his)
-    print(reward_his)
+    print(cost_his)
+    print(sum(cache_hit_ratio_his)/len(cache_hit_ratio_his))
+    print(sum(cost_his) / len(cost_his))
     # for i in range(len(reward_his)):
     #     print(reward_his[i])
+
+def plot_cache_hit_ratio(cache_hit_ratio_his):
+    import matplotlib.pyplot as plt
+    plt.plot(np.arange(len(cache_hit_ratio_his)), cache_hit_ratio_his)
+    plt.ylabel('Cache Hit Ratio')
+    plt.xlabel('Episodes')
+    plt.show()
+
+def plot_cost(cost_his):
+    import matplotlib.pyplot as plt
+    plt.plot(np.arange(len(cost_his)), cost_his)
+    plt.ylabel('Cost')
+    plt.xlabel('Episodes')
+    plt.show()
 
 def plot_reward(reward_his):
     import matplotlib.pyplot as plt
