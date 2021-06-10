@@ -8,10 +8,10 @@ import numpy as np
 
 def run(env, RL):
     total_step = 0
-    #reward_his = []
+    reward_his = []
     cost_his=[]
     cache_hit_ratio_his = []
-    for episode in range(300):
+    for episode in range(3000):
         observation = env.reset()
         episodeRequestCount = 0
         episodeCacheHitCount = 0
@@ -32,12 +32,13 @@ def run(env, RL):
             episodeCacheHitCount += hitCacheCount
             episodeRequestCount += currentRequestCount
             costSum += -reward
-        #reward_his.append(env.rsu_residual_capcity[3])
+            reward_his.append(reward)
         # if episode >= 290:
         #     cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
-    #plot_reward(reward_his)
+        #plot_reward(reward_his)
         cache_hit_ratio_his.append(episodeCacheHitCount/episodeRequestCount)
         cost_his.append(costSum)
+    plot_reward(reward_his)
     plot_cache_hit_ratio(cache_hit_ratio_his)
     plot_cost(cost_his)
     print(cache_hit_ratio_his)

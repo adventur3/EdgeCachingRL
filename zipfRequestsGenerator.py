@@ -42,5 +42,19 @@ class RequestGenerator:
         return index
 
 if __name__ == '__main__':
-    requestGen = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
-    print(requestGen.generateRegionRequestMatrix())
+    # requestGen = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
+    # print(requestGen.generateRegionRequestMatrix())
+    requestGen = RequestGenerator(5, 60, 8, [35, 17, 11, 9, 6, 6, 5, 4, 4, 3])
+    f = open("experimentData/RegionRequest/8region_10request_plus.txt", "w")
+    region_num = 8
+    request_num = 10
+    for round in range(6010000):
+        matrix = requestGen.generateRegionRequestMatrix()
+        for i in range(region_num):
+            for j in range(request_num):
+                if j==request_num-1:
+                    f.write(str(matrix[i][j]))
+                else:
+                    f.write(str(matrix[i][j]))
+                    f.write(" ")
+            f.write("\n")

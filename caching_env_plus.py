@@ -33,7 +33,7 @@ class CachingEnv:
                 temparr.append(intlist)
             self.rsu_connect = np.array(temparr)
 
-        with open('experimentData/RequestSize/10request.txt', 'r') as f:
+        with open('experimentData/RequestSize/25request.txt', 'r') as f:
             line = f.readline()
             strlist = str.split(line)
             intlist = list(map(int, strlist))
@@ -47,11 +47,24 @@ class CachingEnv:
                 temparr.append(intlist)
             self.region_neighbor = np.array(temparr)
 
-        self.requestGenerator = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
-        #self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [52, 20, 12, 9, 7])
+        #self.requestGenerator = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [31,15,10,8,6,5,4,4,3,3,3,3,2,2,1])
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [28,14,10,7,6,5,4,4,3,3,2,2,2,2,2,2,1,1,1,1])
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [27,13,9,7,5,4,4,3,3,3,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1])
+        self.requestFile = open('experimentData/RegionRequest/8region_10request_plus.txt')
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM), dtype=int)
         self.car_cache_state = np.zeros((CAR_NUM, REQUEST_NUM), dtype=int)
-        self.region_request = self.requestGenerator.generateRegionRequestMatrix()
+
+        temparr = []
+        for i in range(self.region_num):
+            line = self.requestFile.readline()
+            strlist = str.split(line)
+            intlist = list(map(int, strlist))
+            temparr.append(intlist)
+        self.region_request = np.array(temparr)
+
+        #self.region_request = self.requestGenerator.generateRegionRequestMatrix()
         self.rsu_capcity = np.ones(RSU_NUM) * DEFAULT_RSU_CAPCITY
         self.car_capcity = np.ones(CAR_NUM) * DEFAULT_CAR_CAPCITY
         self.rsu_residual_capcity = np.ones(RSU_NUM) * DEFAULT_RSU_CAPCITY
@@ -78,14 +91,15 @@ class CachingEnv:
         self.request_popularity = np.zeros(REQUEST_NUM, dtype=int)
         #self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
 
-        # temparr = []
-        # for i in range(self.region_num):
-        #     line = self.requestFile.readline()
-        #     strlist = str.split(line)
-        #     intlist = list(map(int, strlist))
-        #     temparr.append(intlist)
-        #self.region_request = np.array(temparr)
-        self.region_request = self.requestGenerator.generateRegionRequestMatrix()
+        temparr = []
+        for i in range(self.region_num):
+            line = self.requestFile.readline()
+            strlist = str.split(line)
+            intlist = list(map(int, strlist))
+            temparr.append(intlist)
+        self.region_request = np.array(temparr)
+
+        #self.region_request = self.requestGenerator.generateRegionRequestMatrix()
         self.car_location = []
         for i in range(CAR_NUM):
             temp = random.randint(0, REGION_NUM-1)
@@ -94,13 +108,7 @@ class CachingEnv:
         return np.concatenate([self.rsu_residual_capcity, self.car_residual_capcity, self.request_popularity])
 
     def step(self, action):
-        # temparr = []
-        # for i in range(self.region_num):
-        #     line = self.requestFile.readline()
-        #     strlist = str.split(line)
-        #     intlist = list(map(int, strlist))
-        #     temparr.append(intlist)
-        # self.region_request = np.array(temparr)
+
 
         currentRequestCount, hitCacheCount = self.hitCacheCount()
 
@@ -168,7 +176,6 @@ class CachingEnv:
                 self.rsu_residual_capcity[tempRSUId] -= self.request_size[tempRequestId]
 
         observation_ = np.concatenate([self.rsu_residual_capcity, self.car_residual_capcity, self.request_popularity])
-        store_cost = (np.sum(self.rsu_capcity)+np.sum(self.car_capcity)-np.sum(self.rsu_residual_capcity)-np.sum(self.car_residual_capcity))/(np.sum(self.rsu_capcity)+np.sum(self.car_capcity))
         tranTime_sum = 0
         for i in range(REGION_NUM):
             for j in range(REQUEST_NUM):
@@ -178,10 +185,22 @@ class CachingEnv:
                 else:
                     tranTime_sum += self.time4
         trans_cost = tranTime_sum/(self.time4*REQUEST_NUM*REGION_NUM)
-        cost = store_cost+trans_cost
+
+        #store_cost = (np.sum(self.rsu_capcity) + np.sum(self.car_capcity) - np.sum(self.rsu_residual_capcity) - np.sum(self.car_residual_capcity)) / (np.sum(self.rsu_capcity) + np.sum(self.car_capcity))
+        store_valid = (np.sum(self.rsu_residual_capcity)+np.sum(self.car_residual_capcity))/(np.sum(self.rsu_capcity)+np.sum(self.car_capcity))
+        cost = trans_cost/store_valid
         #print(store_cost,trans_cost)
         reward = -cost
-        self.region_request = self.requestGenerator.generateRegionRequestMatrix()
+
+        temparr = []
+        for i in range(self.region_num):
+            line = self.requestFile.readline()
+            strlist = str.split(line)
+            intlist = list(map(int, strlist))
+            temparr.append(intlist)
+        self.region_request = np.array(temparr)
+
+        #self.region_request = self.requestGenerator.generateRegionRequestMatrix()
         self.carmove_step()
         return observation_, reward, currentRequestCount, hitCacheCount
 

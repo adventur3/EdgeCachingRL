@@ -7,9 +7,9 @@ DEFAULT_RSU_CAPCITY = 2000
 DEFAULT_CAR_CAPCITY = 1000
 
 RSU_NUM = 4
-REQUEST_NUM = 10
+REQUEST_NUM = 25
 REGION_NUM = 8
-CAR_NUM = 20
+CAR_NUM = 25
 
 
 class CachingEnv:
@@ -33,7 +33,7 @@ class CachingEnv:
                 temparr.append(intlist)
             self.rsu_connect = np.array(temparr)
 
-        with open('experimentData/RequestSize/10request.txt', 'r') as f:
+        with open('experimentData/RequestSize/25request.txt', 'r') as f:
             line = f.readline()
             strlist = str.split(line)
             intlist = list(map(int, strlist))
@@ -47,7 +47,11 @@ class CachingEnv:
                 temparr.append(intlist)
             self.region_neighbor = np.array(temparr)
 
-        self.requestGenerator = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [52, 20, 12, 9, 7])
+        #self.requestGenerator = RequestGenerator(5, 60, 8,[35,17,11,9,6,6,5,4,4,3])
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [31,15,10,8,6,5,4,4,3,3,3,3,2,2,1])
+        #self.requestGenerator = RequestGenerator(5, 60, 8, [28,14,10,7,6,5,4,4,3,3,2,2,2,2,2,2,1,1,1,1])
+        self.requestGenerator = RequestGenerator(5, 60, 8, [27,13,9,7,5,4,4,3,3,3,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1])
         #self.requestFile = open('experimentData/RegionRequest/8region_10request.txt')
         self.cache_state = np.zeros((RSU_NUM, REQUEST_NUM), dtype=int)
         self.car_cache_state = np.zeros((CAR_NUM, REQUEST_NUM), dtype=int)
